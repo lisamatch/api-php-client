@@ -117,8 +117,9 @@ class MmpAPIProcessor
 
             $this->preparedData = array_merge($this->requestedData, $requestArray); //merge request body with resource array
             $this->preparedData['accessKey'] = $this->publicKey;
-            $this->preparedData['accessTime'] = (string) time();
+            $this->preparedData['accessTime'] = time();
             $this->preparedData['accessMethod'] = $method;
+            $this->sanitize($this->preparedData);
 
             ksort($this->preparedData, SORT_STRING); //(ksort -> string sort alphabetically from lowest to highest)
 
@@ -133,6 +134,21 @@ class MmpAPIProcessor
         }
 
         return $this->responseObj->reply($response);
+    }
+
+    /**
+     * Converts all values to strings recursively
+     * @param array $data
+     */
+    protected function sanitize(array &$data)
+    {
+        foreach ($data as &$value) {
+            if (is_array($value)) {
+                $this->sanitize($value);
+            } else {
+                $value = (string) $value;
+            }
+        }
     }
 
     /**
