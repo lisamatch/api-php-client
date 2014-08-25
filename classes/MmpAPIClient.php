@@ -60,7 +60,7 @@ class MmpAPIClient
      */
     public function call($method, $res, $data = array())
     {
-        $this->processor = new MmpAPIProcessor($this->publicKey, $this->privateKey, $this->sslCertPath);
+        $this->processor = new MmpAPIProcessor($this->publicKey, $this->privateKey, $this->sslCertPath, new MmpResponse);
         return $this->processor->call($method, $res, $data); //delegate the call to processor
     }
 

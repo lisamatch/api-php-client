@@ -36,7 +36,7 @@ class MmpAPIProcessor
     protected $url = 'https://api.matchmakercrm.com/v1/';
 
     /**
-     * @var string - request resource. For example: 'member/100' OR 'member/100/comments/show'
+     * @var string - request resource. For example: 'members/100' OR 'members/100/comments/show'
      */
     protected $requestedRes;
 
@@ -53,10 +53,14 @@ class MmpAPIProcessor
      *     'offset' => '50',
      *     'order' => 'id-desc',
      *     'data' => array(
-     *        'MemberContactDetails_firstName' => 'John',
-     *        'MemberContactDetails_lastName' => 'Smith',
-     *        'MemberContactDetails_email' => 'Smith',
-     *        'MemberMatchingData_matchGender' => 'female',
+     *         'MemberContactDetails_firstName' => 'Tommy',
+     *         'MemberContactDetails_lastName' => 'Smith',
+     *         'MemberContactDetails_gender' => '0', //male
+     *         'MemberContactDetails_email' => 'tommy@gmail.com',
+     *         'MemberContactDetails_dob' => '03/11/1956', //DD-MM-YY or MM/DD/YY
+     *         'MemberMatchingData_matchGender' => '1', //female
+     *         'ownerAgentID' => '521',
+     *         'memberStatus' => '1', //lead
      *     )
      * )
      * </pre>
@@ -76,13 +80,14 @@ class MmpAPIProcessor
      * @param string $publicKey - public key
      * @param string $privateKey - private/secret key
      * @param string $sslCertPath - absolute path to cert file in the system
+     * @param MmpResponse $respObj - response object
      */
-    public function __construct($publicKey, $privateKey, $sslCertPath)
+    public function __construct($publicKey, $privateKey, $sslCertPath, MmpResponse $respObj)
     {
         $this->publicKey = $publicKey;
         $this->privateKey = $privateKey;
         $this->sslCertPath = $sslCertPath;
-        $this->responseObj = new MmpResponse;
+        $this->responseObj = $respObj;
     }
 
     /**
@@ -120,15 +125,14 @@ class MmpAPIProcessor
             $this->preparedData['accessTime'] = time();
             $this->preparedData['accessMethod'] = $method;
             $this->sanitize($this->preparedData);
-
             ksort($this->preparedData, SORT_STRING); //(ksort -> string sort alphabetically from lowest to highest)
-
             $this->preparedData['accessHash'] = hash_hmac('sha256', json_encode($this->preparedData), $this->privateKey); // hashing message and append it to request body
 
             $response = $this->fireRequest();
         } catch (Exception $exc) {
             $response = array(
-                'info' => get_class($exc) . ': ' . $exc->getMessage(),
+                'info' => get_class($exc),
+                'message' => $exc->getMessage(),
                 'httpCode' => $exc->getCode(),
             );
         }
@@ -139,6 +143,7 @@ class MmpAPIProcessor
     /**
      * Converts all values to strings recursively
      * @param array $data
+     * @return void
      */
     protected function sanitize(array &$data)
     {

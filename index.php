@@ -16,7 +16,7 @@ if ($response->status === true) {
     var_dump($response->data);
     var_dump($response->message);
 } else {
-    print_r('Error. Code:' . $response->httpCode . ' Message: ' . $response->message);
+    print_r('Error. Code: ' . $response->httpCode . ' Message: ' . $response->message);
     var_dump($response->info);
 }
 
