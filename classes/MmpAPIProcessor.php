@@ -103,7 +103,7 @@ class MmpAPIProcessor
         try {
 
             if ($this->isCertExist() === false) {
-                throw new MmpAPIClientException('SSL certificate not exist. Pleae check the path to file', 400);
+                throw new MmpAPIClientException('SSL certificate not exist. Please check the path to file', 400);
             }
 
             $this->requestedRes = $res;
@@ -205,7 +205,7 @@ class MmpAPIProcessor
             // Check for errors and display the error message
             $error_message = curl_strerror($errno);
             curl_close($ch);
-            throw new MmpAPIClientException("Request is invlaid" . "cURL error ({$errno}):\n {$error_message}", 500);
+            throw new MmpAPIClientException("Request is invalid" . "cURL error ({$errno}):\n {$error_message}", 500);
         }
         curl_close($ch);
 
